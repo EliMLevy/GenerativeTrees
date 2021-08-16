@@ -44,7 +44,7 @@ function makeTree(n, x, y, z, rz, ry, tree) {
   group.add(segment)
   tree.add(group)
   segment.position.y += 4;
-
+  // The rotation is done in two steps, a rotation around the Z axis followed by a rotation around the Y axis
   group.rotation.z = rz;
   let axis = new THREE.Vector3(0, 0, 1);
   let angle = rz;
@@ -53,15 +53,20 @@ function makeTree(n, x, y, z, rz, ry, tree) {
   axis = new THREE.Vector3(0, 1, 0)
   angle = ry;
   dir.applyAxisAngle(axis, angle)
+  
+  // Scale the direction vector to easily find the endpoint of the branch (which is also the start point of the next branches)
   dir.multiply(new THREE.Vector3(8, 8, 8));
+
+  // num dictates how many branches branch off this branch
   let num = Math.floor(Math.random() * 2 * n)
-  if(tree.children.length < 10) {
+  if(tree.children.length < 10) { // If the tree is too small, add an extra child branch
     num ++
   }
   for (let i = 0; i < num; i++) {
     makeTree(n * 0.75, x + dir.x, y + dir.y, z + dir.z, Math.random() * Math.PI / 2, ry + Math.PI * 2 / num * i + Math.random() * Math.PI / 6 - Math.PI / 3, tree)
   }
 
+  // If this is a terminal branch then attach a bushel of leaves
   if (num == 0) {
     let leaves = shapes.getSphere(Math.log(n * 10.75), `rgb(${Math.floor(Math.random() * 100)}, 255, ${Math.floor(Math.random() * 100)})`)
     leaves.position.x = x + dir.x
@@ -74,6 +79,7 @@ function makeTree(n, x, y, z, rz, ry, tree) {
 
 let trees = []
 
+// Create nine trees and add them to the scene
 for(let i = 0; i < 9; i++) {
   trees[i] = new THREE.Group();
   trees[i].position.x = (i % 3) * 60 - 60;
@@ -82,7 +88,7 @@ for(let i = 0; i < 9; i++) {
   scene.add(trees[i])
 }
 
-
+// Rotate the trees about their Y axis
 function animate(time) {
   requestAnimationFrame(animate)
   trees.forEach(t => {
